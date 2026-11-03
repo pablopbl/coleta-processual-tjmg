@@ -14,6 +14,8 @@ Endereço: `https://eproc1g.tjmg.jus.br/eproc/`
 
 No painel, localize com `find` os links de "Processos pendentes de citação/intimação" e da linha "Urgentes", e navegue até eles. Na lista, rode `assets/js/cruzar_pendencias_eproc.js`, trocando `__LISTA__` pelos CNJs do lote. Não use os botões da página. A lista pagina a cada 300 processos, então confira todas as páginas se houver mais.
 
+Essa lista só mostra o que aguarda abertura. Uma intimação já aberta sai dela e o prazo continua correndo, então lista vazia não significa ausência de prazo. As próximas etapas leem o status dos eventos: veja `prazosAbertos` no coletor e `PRAZO` no conferidor.
+
 ## Pesquisar processo
 
 Rode `assets/js/pesquisar_eproc.js`, trocando `__CNJ20__` pelos 20 dígitos. Aguarde cerca de 7 segundos. Evite clicar por coordenada na barra superior, porque o link do portal jus.br fica ao lado do campo.
@@ -23,6 +25,8 @@ Rode `assets/js/pesquisar_eproc.js`, trocando `__CNJ20__` pelos 20 dígitos. Agu
 ## Coletar
 
 Na página do processo, rode `assets/js/coletor_eproc.js`. Ele abre "Informações Adicionais", aguarda, lê capa, partes, assuntos e até 20 eventos, omite CPFs e guarda na memória da aba. Se `total` vier 0 com "Segredo de Justiça" na página, registre `segredo_de_justica`.
+
+Se `prazosAbertos` ou `prazosAguardando` vierem acima de zero, leia nos eventos de quem é o prazo e a data final, e avise a pessoa logo. Não espere o relatório final, porque o prazo pode estar perto de vencer.
 
 ## Cópia integral
 
@@ -48,7 +52,7 @@ Na página do processo, rode `assets/js/coletor_eproc.js`. Ele abre "Informaçõ
 
 Se o status indicar áudio ou vídeo fora do PDF:
 
-1. Procure documentos com "Vídeo" ou "Áudio" no título, em `a.infraLinkDocumento`.
-2. Abra cada link em aba própria e confira se o arquivo chegou em `Downloads`.
+1. Procure com `find` os links de documento "do tipo" mp4, mpeg, mp3, ogg ou wav. Não confie só no nome: uma mídia pode se chamar `DOCCOMPROV2`, e o mesmo arquivo pode aparecer em mais de um evento e ser contado duas vezes.
+2. Clique em cada link pelo `ref` e confira se o arquivo chegou em `Downloads`.
 3. Mova para `<lote>/<CNJ>/evento_<n>_<documento>.<ext>`.
 4. Se o número de mídias encontradas for menor que o informado pelo eproc, registre `parcial` e o motivo.
