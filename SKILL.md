@@ -58,6 +58,8 @@ Antes de abrir processos, leia as pendências de cada sistema com o perfil logad
 
 Não clique em nada nessas listas, em especial "Abrir Prazo". Processo com pendência não é aberto: registre `risco_de_intimacao` e avise a pessoa. Se a pendência não puder ser lida, não abra os autos daquele sistema.
 
+Lista vazia não prova que não há prazo: no eproc, uma intimação já aberta sai da lista e continua correndo. Por isso, as etapas 4 e 7 leem o status dos eventos.
+
 ### 4. Coletar capa e andamentos
 
 Consulte o **eproc primeiro**, mesmo em números que começam com 5, porque um processo migrado deixa o PJe defasado.
@@ -94,7 +96,7 @@ Use até 3 abas por sistema, um sistema por vez. Mais de 3 abas, e eproc e PJe s
 python3 scripts/conferir_pdfs.py --lote <lote> [--downloads ~/Downloads]
 ```
 
-O script move os PDFs para `<lote>/<CNJ>/`, une partes, confere abertura, senha, número do processo, páginas e documentos dos últimos andamentos, e atualiza `<lote>/controle.json`.
+O script move os PDFs para `<lote>/<CNJ>/`, une partes, confere abertura, senha, número do processo, páginas e documentos dos últimos andamentos, e atualiza `<lote>/controle.json`. Ele também lista, nas linhas `PRAZO`, os prazos do eproc abertos ou aguardando abertura encontrados no PDF. Avise a pessoa logo, com a parte e a data final.
 
 Depois do download, releia o último andamento de cada processo e grave a hora real em `conferencia_final`. Se ele mudou, colete de novo. Se a lista do PJe mostrar um movimento ausente dos autos, registre a divergência em `motivo` e avise a pessoa. A consulta vale por 1 hora, salvo outro prazo combinado: passou disso, consulte de novo.
 

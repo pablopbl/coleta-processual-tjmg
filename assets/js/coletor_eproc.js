@@ -11,7 +11,8 @@ await new Promise(r => setTimeout(r, 2500));
   const t = document.getElementById('tblPartesERepresentantes');
   const cells = t ? [...t.querySelectorAll('td')].map(x => mask(c(x.textContent).replace(/\.item-barra[^}]*\}/, '')).trim()) : [];
   const ev = [...document.querySelectorAll('tr[id^=trEvento]')].map(r => [c(r.cells[0].textContent).split(' ')[0], c(r.cells[1].textContent), mask(c(r.cells[2].textContent))]);
-  const midia = [...document.querySelectorAll('tr[id^=trEvento] a.infraLinkDocumento')].filter(a => /udio|v[ií]deo|m[ií]dia/i.test((a.title || '') + ' ' + a.textContent)).map(a => c(a.textContent) + ' ' + (a.title || '').split('\n').pop());
+  const descDoc = a => [a.title, a.getAttribute('aria-label'), a.textContent].join(' ');
+  const midia = [...new Set([...document.querySelectorAll('tr[id^=trEvento] a.infraLinkDocumento')].filter(a => /udio|v[ií]deo|m[ií]dia|\b(mp4|mpeg|mpg|mov|avi|webm|mp3|ogg|oga|opus|wav|m4a)\b/i.test(descDoc(a))).map(a => c(a.textContent) + ' ' + (a.title || '').split('\n').pop()))];
   const r = {
     hora: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
     capa: c(document.getElementById('fldCapa')?.innerText),
@@ -31,5 +32,5 @@ await new Promise(r => setTimeout(r, 2500));
   const d = JSON.parse(sessionStorage.getItem('coleta') || '{}');
   d[num] = r;
   sessionStorage.setItem('coleta', JSON.stringify(d));
-  return { ok: true, num, total: ev.length, ultimo: ev[0] && ev[0][1], docs: r.docs, download: r.downloadCompleto, integra: r.acessoIntegra, sigilo: r.sigilo, midia: midia.length, prazosAbertos: ev.filter(e => /Status:ABERTO/.test(e[2])).length, guardados: Object.keys(d).length };
+  return { ok: true, num, total: ev.length, ultimo: ev[0] && ev[0][1], docs: r.docs, download: r.downloadCompleto, integra: r.acessoIntegra, sigilo: r.sigilo, midia: midia.length, prazosAbertos: ev.filter(e => /Status: ?ABERTO/i.test(e[2])).length, prazosAguardando: ev.filter(e => /Status: ?AGUARD/i.test(e[2])).length, guardados: Object.keys(d).length };
 })()

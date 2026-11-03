@@ -38,7 +38,7 @@ A skill começa com um teste de até 5 processos e só segue para o lote com apr
 
 - **Credenciais:** login, senha e MFA são sempre digitados pela pessoa, na tela. A skill não pede nem guarda esses dados.
 - **Somente leitura:** ela só consulta e baixa. Não peticiona, não assina e não toma ciência.
-- **Intimações:** abrir autos com um perfil que representa a parte pode registrar ciência. Por isso, a skill cruza as pendências antes e não abre os processos com pendência. A verificação não substitui o controle de prazos do escritório.
+- **Intimações:** abrir autos com um perfil que representa a parte pode registrar ciência. Por isso, a skill cruza as pendências antes e não abre os processos com pendência. No eproc, uma intimação já aberta sai da lista de pendências, então a skill também lê o status dos eventos e dos PDFs. A verificação não substitui o controle de prazos do escritório.
 - **Registro de acesso:** os acessos ficam em nome do titular do login, que precisa ter autorizado o uso. Algumas gerações enviam e-mail ao endereço cadastrado.
 - **Regras do tribunal:** confira as regras de acesso automatizado do tribunal antes de usar em volume.
 - **Dados pessoais:** os autos têm dados de terceiros. Trate as saídas de acordo com a LGPD e não as publique.

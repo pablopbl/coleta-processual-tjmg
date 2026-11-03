@@ -31,6 +31,22 @@ def carregar_eventos(lote):
     return evs
 
 
+def prazos_nao_fechados(corpo):
+    """Lê as páginas de separação do eproc e lista prazos abertos ou aguardando abertura."""
+    achados = []
+    for pagina in corpo.split("\f"):
+        t = re.sub(r"\s+", " ", pagina)
+        st = re.search(r"Status: ?(ABERTO|AGUARD\. ABERTURA)", t)
+        if "SEPARAÇÃO" not in t or not st:
+            continue
+        ev = re.search(r"Sequência Evento: ?(\d+)", t)
+        parte = re.search(r"Sequência Evento: ?\d+ (.{0,80}?) Prazo:", t)
+        prazo = re.search(r"Prazo: ?(.{0,20}?) Status:", t)
+        fim = re.search(r"Data Final: ?(\d{2}/\d{2}/\d{4})", t)
+        achados.append({"evento": ev.group(1) if ev else None, "parte": parte.group(1) if parte else None, "prazo": prazo.group(1) if prazo else None, "status": st.group(1), "data_final": fim.group(1) if fim else None})
+    return achados
+
+
 def organizar(cnj, origem, pasta):
     final = pasta / f"{cnj}_copia_integral.pdf"
     direto = origem / final.name
@@ -81,12 +97,15 @@ def main():
             falhas.append("número do processo ausente nas primeiras páginas")
         if c.get("esperado") and pag != c["esperado"]:
             falhas.append(f"{pag} páginas, sistema informou {c['esperado']}")
+        corpo = texto(final) if pag else ""
         ids = sorted({i for e in evs.get(cnj, []) for i in re.findall(r"\b1\d{10}\b", e[-1])})
         if ids and pag:
-            corpo = texto(final)
             faltam = [i for i in ids if i not in corpo]
             if faltam:
                 falhas.append(f"documentos dos andamentos ausentes: {', '.join(faltam[:5])}")
+        c["prazos_nao_fechados"] = prazos_nao_fechados(corpo)
+        for p in c["prazos_nao_fechados"]:
+            print("PRAZO", cnj, p)
         c["pdf"], c["paginas"] = final.name, pag
         if falhas:
             c["status_copia"] = "parcial"
