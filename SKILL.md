@@ -117,6 +117,7 @@ Feche as abas que você abriu e relate em linguagem simples:
 
 ## Limites conhecidos
 
+- O PJe não mostra o nome do juiz na consulta, só o cargo. No eproc, o nome vem da capa.
 - A verificação de mídias no PJe olha só os 20 últimos andamentos. Mídia mais antiga pode ficar fora do PDF.
 - O 2º grau não é consultado. Registre a remessa em `motivo`.
 - O painel do eproc pode ficar lento por vários minutos em perfil com muitos processos.
