@@ -24,7 +24,7 @@ Rode `assets/js/pesquisar_eproc.js`, trocando `__CNJ20__` pelos 20 dígitos. Agu
 
 ## Coletar
 
-Na página do processo, rode `assets/js/coletor_eproc.js`. Ele abre "Informações Adicionais", aguarda, lê capa, partes, assuntos e até 20 eventos, omite CPFs e guarda na memória da aba. Se `total` vier 0 com "Segredo de Justiça" na página, registre `segredo_de_justica`.
+Na página do processo, rode `assets/js/coletor_eproc.js`. Ele abre "Informações Adicionais", aguarda, lê capa, juiz, partes, assuntos e até 20 eventos, omite CPFs e guarda na memória da aba. Se `total` vier 0 com "Segredo de Justiça" na página, registre `segredo_de_justica`.
 
 Se `prazosAbertos` ou `prazosAguardando` vierem acima de zero, leia nos eventos de quem é o prazo e a data final, e avise a pessoa logo. Não espere o relatório final, porque o prazo pode estar perto de vencer.
 

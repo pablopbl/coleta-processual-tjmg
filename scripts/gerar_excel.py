@@ -12,7 +12,7 @@ from openpyxl.utils import get_column_letter
 
 EPROC = "https://eproc1g.tjmg.jus.br/eproc/"
 PJE = "https://pje.tjmg.jus.br/pje/Processo/ConsultaProcesso/listView.seam"
-CAPA = ["Número CNJ", "Tribunal", "Sistema", "Grau", "Órgão julgador", "Classe", "Assuntos", "Data de distribuição", "Valor da causa", "Situação", "Partes", "Advogados", "Segredo de justiça"]
+CAPA = ["Número CNJ", "Tribunal", "Sistema", "Grau", "Órgão julgador", "Juiz", "Classe", "Assuntos", "Data de distribuição", "Valor da causa", "Situação", "Partes", "Advogados", "Segredo de justiça"]
 ANDS = [c for i in range(1, 21) for c in (f"Data andamento {i}", f"Andamento {i}")]
 CTRL = ["Quantidade de andamentos", "Status capa", "Status andamentos", "Status cópia integral", "Motivo da falha", "Perfil de acesso", "URL de origem", "Data e hora da consulta inicial", "Data e hora da conferência final", "Nome do PDF", "Páginas do PDF"]
 COL = CAPA + ANDS + CTRL
@@ -82,6 +82,11 @@ def partes_eproc(v):
     return " | ".join(partes) or None, " ; ".join(dict.fromkeys(adv)) or None
 
 
+def juiz_eproc(v):
+    achado = re.search(r"Juiz\(a\):\s*(.*?)(?=\s+[A-ZÀ-Ü][a-zà-ü]+(?: [a-zà-ü]+)*:|$)", v.get("capa") or "")
+    return v.get("juiz") or (achado.group(1) if achado else None) or None
+
+
 def linha_eproc(cnj, v, c):
     cp = v.get("capa", "")
     g = lambda a, b: (re.search(a + r"\s*(.*?)\s*" + b, cp) or [None, None])[1]
@@ -108,7 +113,7 @@ def linha_eproc(cnj, v, c):
         "andamentos": "segredo_de_justica" if segredo else "sem_acesso" if sem_eventos else "sucesso",
         "copia": "segredo_de_justica" if segredo else "sem_acesso",
     }
-    capa = [cnj, "TJMG", "eproc", "1º grau", g("Órgão Julgador:", "Juiz"), g("Classe da ação:", "Competência"), " ; ".join(v.get("ass", [])) or None,
+    capa = [cnj, "TJMG", "eproc", "1º grau", g("Órgão Julgador:", "Juiz"), juiz_eproc(v), g("Classe da ação:", "Competência"), " ; ".join(v.get("ass", [])) or None,
             dt(g("Data de autuação:", "Situação")), dinheiro(v.get("valor")), sit, partes, adv, sigilo]
     return capa, ands, None if sem_eventos else v.get("total"), st, obs, EPROC, v.get("hora"), v.get("perfil")
 
@@ -125,9 +130,11 @@ def linha_pje(cnj, v, c):
     ul = v.get("ultimaLista")
     if ul and evs and ul.upper().rstrip(".") not in " ".join(e[1] for e in evs).upper():
         obs.append(f"Divergência: a lista do PJe mostra '{ul}', movimento não localizado nos 20 andamentos.")
+    if not v.get("juiz"):
+        obs.append("Juiz: a consulta do PJe não informa o nome.")
     ands = [x for e in evs for x in (dt(e[0]), texto(e[1]))]
     st = {"capa": "sucesso", "andamentos": "sucesso", "copia": "sem_acesso"}
-    capa = [cnj, "TJMG", "PJe", "1º grau", v.get("orgao"), v.get("classe"), v.get("assunto"), dist, dinheiro(v.get("valor")), None,
+    capa = [cnj, "TJMG", "PJe", "1º grau", v.get("orgao"), v.get("juiz"), v.get("classe"), v.get("assunto"), dist, dinheiro(v.get("valor")), None,
             f"POLO ATIVO: {' ; '.join(pa)} | POLO PASSIVO: {' ; '.join(pp)}", " ; ".join(dict.fromkeys(aa + ap)) or None,
             "Sim" if v.get("segredo") == "SIM" else "Não"]
     return capa, ands, v.get("total"), st, obs, PJE, v.get("hora"), None
@@ -146,7 +153,7 @@ def montar(lote):
         elif cnj in P:
             capa, ands, qtd, st, obs, url, hora, perfil = linha_pje(cnj, P[cnj], c)
         else:
-            capa, ands, qtd, url, hora, perfil = [cnj, "TJMG"] + [None] * 11, [], None, None, None, None
+            capa, ands, qtd, url, hora, perfil = [cnj, "TJMG"] + [None] * 12, [], None, None, None, None
             st = {"capa": "nao_encontrado", "andamentos": "nao_encontrado", "copia": "nao_encontrado"}
             obs = []
         motivo = " ".join(x for x in [c.get("motivo")] + obs if x) or None
@@ -154,7 +161,7 @@ def montar(lote):
         linhas.append(capa + ands + [qtd, c.get("status_capa", st["capa"]), c.get("status_andamentos", st["andamentos"]), c.get("status_copia", st["copia"]), motivo,
                                      c.get("perfil", perfil), url, dt(hora), dt(c.get("conferencia_final")), c.get("pdf"), c.get("paginas")])
     for cnj in lista.get("invalidos", []):
-        linhas.append([cnj, None] + [None] * 11 + [None] * 40 + [None, "numero_invalido", "numero_invalido", "numero_invalido", "Dígito verificador inválido.", None, None, None, None, None, None])
+        linhas.append([cnj, None] + [None] * 12 + [None] * 40 + [None, "numero_invalido", "numero_invalido", "numero_invalido", "Dígito verificador inválido.", None, None, None, None, None, None])
     return linhas
 
 
@@ -182,7 +189,7 @@ def main():
         c.alignment = Alignment(vertical="center", horizontal="center", wrap_text=True)
     for i in range(2, ws.max_row + 1):
         ws.cell(i, COL.index("Valor da causa") + 1).number_format = '"R$" #,##0.00'
-    larg = {"Número CNJ": 27, "Órgão julgador": 45, "Classe": 34, "Assuntos": 50, "Partes": 50, "Advogados": 50, "Motivo da falha": 70, "Perfil de acesso": 34, "URL de origem": 40, "Segredo de justiça": 24, "Situação": 22}
+    larg = {"Número CNJ": 27, "Órgão julgador": 45, "Juiz": 34, "Classe": 34, "Assuntos": 50, "Partes": 50, "Advogados": 50, "Motivo da falha": 70, "Perfil de acesso": 34, "URL de origem": 40, "Segredo de justiça": 24, "Situação": 22}
     for i, nome in enumerate(COL, 1):
         ws.column_dimensions[get_column_letter(i)].width = larg.get(nome) or (18 if nome.startswith(("Data", "Status", "Valor")) else 45 if nome.startswith("Andamento ") else 12)
     ws.row_dimensions[1].height = 32

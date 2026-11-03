@@ -21,7 +21,7 @@ O endereço dos autos vale só para a sessão. Sempre passe pela pesquisa.
 
 ## Coletar
 
-Nos autos, rode `assets/js/coletor_pje.js`. Ele lê "Mais detalhes", os polos e até 20 movimentos da linha do tempo, omitindo CPFs.
+Nos autos, rode `assets/js/coletor_pje.js`. Ele lê "Mais detalhes", os polos e até 20 movimentos da linha do tempo, omitindo CPFs. "Mais detalhes" traz o cargo judicial, não o nome do juiz.
 
 Compare com a coluna "Última moviment." da pesquisa. Em um caso, a lista mostrou um movimento que não aparecia nos autos. Registre essa divergência, sem deduzir a data ou o conteúdo.
 

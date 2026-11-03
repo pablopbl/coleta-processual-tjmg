@@ -39,11 +39,13 @@ O coletor do eproc já traz o perfil. No PJe, informe `perfil` no `controle.json
 
 Aba única `Processos`, uma linha por processo, nesta ordem:
 
-1. **Capa:** Número CNJ, Tribunal, Sistema, Grau, Órgão julgador, Classe, Assuntos, Data de distribuição, Valor da causa, Situação, Partes, Advogados, Segredo de justiça.
+1. **Capa:** Número CNJ, Tribunal, Sistema, Grau, Órgão julgador, Juiz, Classe, Assuntos, Data de distribuição, Valor da causa, Situação, Partes, Advogados, Segredo de justiça.
 2. **Andamentos:** `Data andamento 1`, `Andamento 1`, até o 20. O 1 é o mais recente. Com menos de 20, as colunas ficam vazias.
 3. **Controle:** Quantidade de andamentos, Status capa, Status andamentos, Status cópia integral, Motivo da falha, Perfil de acesso, URL de origem, Data e hora da consulta inicial, Data e hora da conferência final, Nome do PDF, Páginas do PDF.
 
 Datas no horário de Brasília. A URL de origem é o endereço do sistema, sem tokens. Em campos com vários valores, use " ; ".
+
+`Juiz` traz o nome exibido pelo sistema. O eproc mostra o nome na capa. A consulta do PJe mostra só o cargo, então a coluna fica vazia e `Motivo da falha` explica. Não preencha com nome deduzido de peças dos autos.
 
 ## Status
 

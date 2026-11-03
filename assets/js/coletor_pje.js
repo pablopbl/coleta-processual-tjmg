@@ -21,12 +21,13 @@
   const r = {
     hora: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
     classe: g('Classe judicial', 'Assunto'), assunto: g('Assunto', 'Jurisdição'), autuacao: g('Autuação', 'Última distribuição'),
-    valor: g('Valor da causa', 'Segredo de justiça'), segredo: g('Segredo de justiça\\?', 'Justiça gratuita'), orgao: g('Órgão julgador', 'Cargo judicial'),
+    valor: g('Valor da causa', 'Segredo de justiça'), segredo: g('Segredo de justiça\\?', 'Justiça gratuita'), orgao: g('Órgão julgador', 'Cargo judicial'), cargo: g('Cargo judicial', 'Competência'),
+    juiz: (det.match(/(?:Juiz\(a\)|Magistrad[oa]):\s*(.*?)(?=\s+[A-ZÀ-Ü][a-zà-ü]+(?: [a-zà-ü]+)*:|$)/) || [])[1] || null,
     ativo: a ? mask(c(a.textContent)) : null, passivo: p ? mask(c(p.textContent)) : null,
     ultimaLista: sessionStorage.getItem('ultimaMov'), total: ev.length, ev: ev.slice(0, 20)
   };
   const dd = JSON.parse(sessionStorage.getItem('coleta') || '{}');
   dd[num] = r;
   sessionStorage.setItem('coleta', JSON.stringify(dd));
-  return { ok: true, num, total: ev.length, ultimo: ev[0], ultimaLista: r.ultimaLista, orgao: (r.orgao || '').slice(0, 40), guardados: Object.keys(dd).length };
+  return { ok: true, num, juiz: r.juiz, cargo: r.cargo, total: ev.length, ultimo: ev[0], ultimaLista: r.ultimaLista, orgao: (r.orgao || '').slice(0, 40), guardados: Object.keys(dd).length };
 })()
